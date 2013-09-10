@@ -1,0 +1,11 @@
+dist
+cabal-dev
+*.o
+*.hi
+*.chi
+*.chs.h
+*.js_o
+*.js_hi
+*.jsexe
+*.js
+
