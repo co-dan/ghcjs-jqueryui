@@ -18,7 +18,7 @@ main = do
     initWidget sliderDiv Slider with { sliderValue = 10 }
 
     pbarDiv <- select "#progressbar"
-    initWidget pbarDiv Progressbar with { progressbarValue = 50 }
+    initWidget pbarDiv Progressbar with { progressbarValue = -1 }
 
     menuDiv <- select "#menu"
     initWidget menuDiv Menu defOpts
@@ -27,6 +27,12 @@ main = do
     opener    <- select "#opener"
     initWidget dialogDiv Dialog with { dialogAutoOpen = False }
     let handler _ = widgetMethod dialogDiv Dialog "open"
-    _ <- click handler def opener 
+    _ <- click handler def opener
+
+    -- tooltipP <- select "#ttip"
+    -- initWidget tooltipP Tooltip with { tooltipContent = "HI" }
+
+    spinnerInp <- select "#spinner"
+    initWidget spinnerInp Spinner defOpts
     return ()
     

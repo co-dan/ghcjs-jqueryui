@@ -232,3 +232,67 @@ mkWidget ''Slider
                     <==> [e|toJSON ()|]
     ]
 
+
+data Spinner = Spinner
+
+mkWidget ''Spinner
+    [ "culture"     <::> [t|Text |]
+                    <==> [e|""   |]
+    , "disabled"    <::> [t|Bool |]
+                    <==> [e|False|]
+
+    , "icons"       <::> [t|A.Value|]
+        <==> [e|object
+                [ "down" .= ("ui-icon-triangle-1-s" :: Text)
+                , "up"   .= ("ui-icon-triangle-1-n" :: Text)]|]
+      
+    , "incremental" <::> [t|Bool|]
+                    <==> [e|True|]
+
+    -- XXX
+    -- , "max"         <::> [t|Int|]
+    --                 <==> [e|0  |]
+    -- , "min"         <::> [t|Int|]
+    --                 <==> [e|0  |]
+
+    , "numberFormat" <::> [t|Text|]
+                     <==> [e|""  |]
+
+    , "page"         <::> [t|Int|]
+                     <==> [e|10|]
+
+    , "step"         <::> [t|Int|]
+                     <==> [e|1  |]
+    ]
+
+
+data Tabs = Tabs
+
+mkWidget ''Tabs
+    [ "active"      <::> [t|Int     |]
+                    <==> [e|0       |]
+      
+    , "collapsible" <::> [t|Bool    |]
+                    <==> [e|False   |]
+      
+    , "disabled"    <::> [t|Bool    |]
+                    <==> [e|False   |]
+    , "event"       <::> [t|Text    |]
+                    <==> [e|"click" |]
+      
+    , "heightStyle" <::> [t|Text    |]
+                    <==> [e|"content"  |]
+
+    , "hide"        <::> [t|Text    |]
+                    <==> [e|""  |]
+    , "show"        <::> [t|Text    |]
+                    <==> [e|""  |]
+    ]
+
+
+-- data Tooltip = Tooltip
+
+-- mkWidget ''Tooltip
+--     [ "content"      <::> [t|JSRef a |]
+--                      <==> [e|""       |]      
+--     ]
