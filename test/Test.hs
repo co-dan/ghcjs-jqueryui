@@ -6,5 +6,6 @@ import JavaScript.JQuery.UI
 
 main = do
     btn <- select "button"    
-    initWidget btn button with { buttonLabel = "Hello" }
+    initWidget btn Button with { buttonLabel    = "Hello, world"
+                               , buttonDisabled = True }
     return ()
