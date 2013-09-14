@@ -7,9 +7,14 @@ import JavaScript.JQuery.UI.Class
 import Data.Default
 
 main = do
+    body <- select "body"
+    newbtn <- select "<button></button>"
+    initWidget newbtn Button with { buttonLabel = "bla" }
+    appendJQuery newbtn body
+    
     btn <- select "#bttn"    
     initWidget btn Button with { buttonLabel    = "Hello, world"
-                               , buttonDisabled = True }
+                               , buttonDisabled = False }
 
     div1 <- select "#accordion"
     initWidget div1 Accordion with { accordionEvent = "mouseover" }
@@ -18,7 +23,7 @@ main = do
     initWidget sliderDiv Slider with { sliderValue = 10 }
 
     pbarDiv <- select "#progressbar"
-    initWidget pbarDiv Progressbar with { progressbarValue = -1 }
+    initWidget pbarDiv Progressbar with { progressbarValue = Val 10 }
 
     menuDiv <- select "#menu"
     initWidget menuDiv Menu defOpts

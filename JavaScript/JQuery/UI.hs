@@ -29,6 +29,7 @@ with = defOpts
 
 initWidget :: (Widget a, Show a) => JQuery -> a -> WidgetOpts a -> IO ()
 initWidget jq widget wopts = do
+    putStrLn $ "InitWidget " ++ show widget
     opts <- optsObj wopts
     jq_setOptsWidget (toJSString (show widget)) opts jq
 
@@ -37,6 +38,15 @@ widgetMethod jq widget method = jq_widgetMethod widget' method' jq
   where
     widget' = toJSString (show widget)
     method' = toJSString method
+
+-- | If (Maybe a) is 'a nullable', than (Falsable a) is 'a falsable'
+--
+-- F = 'false', Val a = a
+data Falsable a = F | Val a
+
+instance (ToJSRef a) => ToJSRef (Falsable a) where
+    toJSRef F       = return (castRef jsFalse)
+    toJSRef (Val a) = castRef <$> toJSRef a
 
 ---------------------------
 
@@ -195,8 +205,8 @@ mkWidget ''Progressbar
     , "max"      <::> [t|Int|]
                  <==> [e|100|]
       
-    , "value"    <::> [t|Int|]
-                 <==> [e|0  |]
+    , "value"    <::> [t|Falsable Int|]
+                 <==> [e|F           |]
     ]
 
 
