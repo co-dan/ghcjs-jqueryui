@@ -25,12 +25,12 @@ import           JavaScript.JQuery.UI.TH
 import           JavaScript.JQuery.UI.Class
 
 with :: Widget a => WidgetOpts a
-with = defOpts
+with = def
 
 initWidget :: (Widget a, Show a) => JQuery -> a -> WidgetOpts a -> IO ()
 initWidget jq widget wopts = do
     putStrLn $ "InitWidget " ++ show widget
-    opts <- optsObj wopts
+    opts <- widgetOptsObj wopts
     jq_setOptsWidget (toJSString (show widget)) opts jq
 
 widgetMethod :: (Widget a) => JQuery -> a -> Text -> IO ()
@@ -48,6 +48,8 @@ instance (ToJSRef a) => ToJSRef (Falsable a) where
     toJSRef F       = return (castRef jsFalse)
     toJSRef (Val a) = castRef <$> toJSRef a
 
+
+-- * Widgets
 ---------------------------
 
 data Button = Button
@@ -299,10 +301,11 @@ mkWidget ''Tabs
                     <==> [e|""  |]
     ]
 
-
+-- XXX: Tooltip
 -- data Tooltip = Tooltip
 
 -- mkWidget ''Tooltip
 --     [ "content"      <::> [t|JSRef a |]
 --                      <==> [e|""       |]      
 --     ]
+

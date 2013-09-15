@@ -7,6 +7,7 @@ import Control.Monad
 import Data.Char
 import qualified Data.Text as T
 import Data.Monoid                (mconcat)
+import Data.Default
 import Debug.Trace
 
 import Language.Haskell.TH
@@ -31,6 +32,8 @@ instance Lift T.Text where
     lift t = litE (stringL (T.unpack t))
 
 
+-- | Create a field name based on the type.
+-- > mkFieldName ''Expr "id" = "exprId"
 mkFieldName :: Name    -- ^ Widget name
             -> String  -- ^ Field
             -> Name
@@ -38,79 +41,105 @@ mkFieldName widgetName s =
     mkName $ map toLower widgetNameBase ++ capitalize s
   where widgetNameBase = nameBase widgetName
 
--- | Main entry point
+-- | Create a singleton instance based on the name.
+--        
+-- > mkSingletonDec (mkName Button)
+--        
+-- @
+-- data Button = Button
+-- @
+mkSingletonDec :: Name -> Dec
+mkSingletonDec name = DataD [] name []
+                        [ NormalC name [] ]
+                        []
+
+-- | Make a simple show instance
+--
+-- > mkSimplShowInst ''Thunk "<thunk>"
+--
+-- @
+-- instance Show Thunk where
+--     show _ = "<thunk>"
+-- @
+-- 
+mkSimplShowInst :: Name -> String -> Dec
+mkSimplShowInst nm str = 
+    InstanceD [] (AppT (ConT ''Show) (ConT nm))
+        [ FunD 'show
+          [ Clause [ WildP ]
+            (NormalB
+              (LitE
+                 (StringL str)))
+             [] ]]
+
+-- | Make a default instance
+--
+-- > mkDefaultInst ''Expr [|Nil|]
+--
+-- @
+-- instance Default Expr where
+--     def = Nil
+-- @          
+mkDefaultInst :: Type -> Exp -> Dec
+mkDefaultInst ty defF =           
+    InstanceD [] (AppT (ConT ''Default) ty)
+        [ FunD 'def
+          [ Clause [ ]
+            (NormalB defF)
+            [] ]]
+
+-- | Convert String to a Name, extract type and expression
+extractOpts :: Name -> [(String, Q Type, Q Exp)] -> Q [(Name, Type, Exp)]
+extractOpts nm = mapM $ \(s,ty,e) -> do
+    let s' = mkFieldName nm s
+    ty' <- ty
+    e'  <- e
+    return (s', ty', e')
+
+-- | Construct a list of defaults from a fresh variable, widget name,
+-- and the options list    
+defOptsList :: Name -> Name -> [(String, Q Type, a)] -> Q [Exp]
+defOptsList var widgetName opts = do
+    mapM (\(nm, ty, _) -> do
+        let nm' = T.pack nm
+        let op = mkFieldName widgetName nm
+        let e = appE (varE op) (varE var)
+        [|nm' ^= ($e :: $ty)|]) opts
+    
 mkWidget :: Name -> [(String, Q Type, Q Exp)] -> Q [Dec]
 mkWidget widgetName opts = do
+    -- names
     let widgetNameBase = nameBase widgetName
-    let wDecl = DataD [] widgetName []
-                    [ NormalC widgetName [] ]
-                    []
-    let showInst = InstanceD [] (AppT (ConT ''Show) (ConT widgetName))
-                       [ FunD 'show
-                             [ Clause [ WildP ]
-                                   (NormalB
-                                    (LitE
-                                     (StringL (map toLower widgetNameBase))))
-                                 [] ]]
-
-    opts' <- forM opts $ \(s,ty,e) -> do
-        let s' = mkFieldName widgetName s
-        ty' <- ty
-        e'  <- e
-        return (s', ty', e')
-    let optsDecl = map (\(nm, ty, _) -> (nm, IsStrict, ty)) opts'
     let widgetOptsName = mkName $ widgetNameBase ++ "Opts"
+    -- declaration
+    let wDecl = mkSingletonDec widgetName
+    -- show & default instances
+    let showInst = mkSimplShowInst widgetName (map toLower widgetNameBase)
+    opts' <- extractOpts widgetName opts
+    let defOpts = RecConE widgetOptsName
+                    (map (\(nm,_,e) -> (nm, e)) opts')
+    let widgetOptsTy = AppT (ConT ''WidgetOpts) (ConT widgetName)
+    let defInst = mkDefaultInst widgetOptsTy defOpts
+    -- widget instances
+    let optsDecl = map (\(nm, ty, _) -> (nm, IsStrict, ty)) opts'
     let wOpts = DataInstD [] ''WidgetOpts [ ConT widgetName ]
                       [ RecC widgetOptsName optsDecl ]
                       []
 
-    let defWopts = FunD 'defOpts [ Clause []
-                      (NormalB (RecConE widgetOptsName
-                                 (map (\(nm,_,e) -> (nm, e)) opts')))
-                      [] ]
-
     optsVar <- newName "opts" 
-    objList <- mapM (\(nm, ty, _) -> do
-                 let nm' = T.pack nm
-                 let op = mkFieldName widgetName nm
-                 let e = appE (varE op) (varE optsVar)
-                 [|nm' ^= ($e :: $ty)|]) opts
-    let optsObjInst = FunD 'optsObj [ Clause [ VarP optsVar ] 
+    objList <- defOptsList optsVar widgetName opts
+    let optsObjInst = FunD 'widgetOptsObj [ Clause [ VarP optsVar ] 
                           (NormalB
                             (AppE (VarE 'obj)
                                   (ListE objList)))
                           [] ]
 
-    let widgetInst = InstanceD [] (AppT (ConT ''Widget) --(mkName "Widget"))
+    let widgetInst = InstanceD [] (AppT (ConT ''Widget) 
                                    (ConT widgetName))
-                         [ wOpts, defWopts, optsObjInst ]
+                         [ wOpts, optsObjInst ]
 
-    return [ showInst , widgetInst ]
+    return [ showInst , defInst, widgetInst ]
 
--- widgetParser = do
---     widgetStr <- capitalize <$> many1 letter
---     let widgetName = mkName widgetStr
---         widgetOptsName = mkName (widgetStr ++ "Opts")
---     opts <- many $ do
---         (,,) <$> (spaces *> many1 letter <?> "Option name")
---              <*> (spaces *> many1 (satisfy (not . isSpace)) <?> "Option type")
---              <*> (spaces *> many1 (satisfy (not . isSpace)) <?>
---                   "Default value") <* spaces
---     let optsDecl = map (\(nm, ty, _) ->
---                          (mkName nm, NotStrict, ConT (mkName ty)))
---                        opts
---     traceM $ show opts
---     let wDecl = DataD [] widgetName []
---                     [ NormalC widgetName [] ]
---                     []
---     let wOpts = DataD [] widgetOptsName [  ]
---                     [ RecC widgetOptsName optsDecl ]
---                     []
---     return $ return [ wDecl , wOpts]
-
-
--- pp :: Parser a -> String -> a
--- pp p s = either (error.show) id (parse p "" s)
 
 capitalize :: String -> String
 capitalize []     = []

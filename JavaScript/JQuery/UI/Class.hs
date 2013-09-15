@@ -9,7 +9,7 @@
 {-# LANGUAGE ImpredicativeTypes #-}
 
 module JavaScript.JQuery.UI.Class
-    ( -- * Main class
+    ( -- * Main classes
       Widget(..)
       -- * Helper functions
     , obj
@@ -27,15 +27,24 @@ import GHCJS.Foreign       as F
 import GHCJS.Marshal
 import GHCJS.Types
 
-class Show a => Widget a where
+class (Show a, Default (WidgetOpts a)) => Widget a where
     data WidgetOpts  a
     -- data WidgetEvnts a
-    defOpts :: WidgetOpts a
-    default defOpts :: (Default (WidgetOpts a)) => WidgetOpts a
-    defOpts = def
-    optsObj :: WidgetOpts a -> IO (JSObject a)
-    default optsObj :: (ToJSON (WidgetOpts a)) => WidgetOpts a -> IO (JSObject a)
-    optsObj opts = castRef <$> toJSRef_aeson (toJSON opts)
+    -- defOpts :: WidgetOpts a
+    -- default defOpts :: (Default (WidgetOpts a)) => WidgetOpts a
+    -- defOpts = def
+    widgetOptsObj :: WidgetOpts a -> IO (JSObject a)
+    default widgetOptsObj :: (ToJSON (WidgetOpts a)) => WidgetOpts a -> IO (JSObject a)
+    widgetOptsObj opts = castRef <$> toJSRef_aeson (toJSON opts)
+
+class Show a => Effect a where
+    data EffectOpts a
+    -- defOpts :: EffectOpts a
+    -- default defOpts :: (Default (EffectOpts a)) => EffectOpts a
+    -- defOpts = def
+    effectOptsObj :: EffectOpts a -> IO (JSObject a)
+    default effectOptsObj :: (ToJSON (EffectOpts a))  => EffectOpts a -> IO (JSObject a)
+    effectOptsObj opts = castRef <$> toJSRef_aeson (toJSON opts)
 
 
 -- * Helper functions
