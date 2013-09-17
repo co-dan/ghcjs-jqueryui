@@ -49,7 +49,6 @@ widgetMethod jq widget method = jq_widgetMethod widget' method' jq
 
 -- * Effect functions
 
-
 applyEffect :: (Effect a) => JQuery -> a -> EffectOpts a -> IO ()
 applyEffect jq e eopts = do
     opts <- effectOptsObj eopts
@@ -89,7 +88,7 @@ mkWidget ''Button
                  <==> [e|False    |]
       
     , "icons"    <::> [t|A.Value  |]
-                 <==> [e|toJSON ()|]
+                 <==> [e|object []|]
       
     , "label"    <::> [t|Text     |]
                  <==> [e|""       |]
@@ -122,8 +121,8 @@ mkWidget ''Accordion
     , "heightStyle" <::> [t|Text    |]
                     <==> [e|"auto"  |]
 
-    , "icons"       <::> [t|A.Value |]
-                    <==> [e|toJSON ()|]
+    , "icons"       <::> [t|A.Value  |]
+                    <==> [e|object []|]
     ]
 
 
@@ -146,10 +145,10 @@ mkWidget ''Autocomplete
                   <==> [e|1  |]
       
     , "position"  <::> [t|A.Value  |]
-                  <==> [e|toJSON ()|]
+                  <==> [e|object []|]
     --- XXX: real source datatype
     , "source"    <::> [t|A.Value  |]
-                  <==> [e|toJSON ()|]
+                  <==> [e|object []|]
     ]
 
 
@@ -168,7 +167,7 @@ mkWidget ''Dialog
                        <==> [e|True|]
       
     , "buttons"        <::> [t|A.Value  |]
-                       <==> [e|toJSON ()|]
+                       <==> [e|object []|]
       
     , "closedOnEscpae" <::> [t|Bool|]
                        <==> [e|True|]
@@ -338,6 +337,28 @@ mkWidget ''Tabs
 --     [ "content"      <::> [t|JSRef a |]
 --                      <==> [e|""       |]      
 --     ]
+
+-- * Animation
+-- XXX: use Clay for CSS?
+
+data AnimateOpts = AnimateOpts { animateEasing   :: Text
+                               , animateDuration :: Int
+                               , animateCSS      :: A.Value }
+
+instance ToJSRef AnimateOpts where
+    toJSRef AnimateOpts{..} = castRef <$>
+                              obj [ "easing"   ^= animateEasing
+                                  , "duration" ^= animateDuration
+                                  ]
+
+instance Default AnimateOpts where
+    def = AnimateOpts "linear" 400 (object [])
+    
+animate :: JQuery -> AnimateOpts -> IO JQuery
+animate jq opts = do
+    opts' <- castRef <$> toJSRef opts
+    css   <- castRef <$> toJSRef (animateCSS opts)
+    jq_animate css opts' jq
 
 -- * Effects
 

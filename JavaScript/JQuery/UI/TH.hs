@@ -8,17 +8,13 @@ import Data.Char
 import qualified Data.Text as T
 import Data.Monoid                (mconcat)
 import Data.Default
-import Debug.Trace
 
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Instances
 
-import Text.Parsec                hiding ((<|>))
-import Text.Parsec.Char
-import Text.Parsec.String
-
+import GHCJS.Foreign
 import JavaScript.JQuery.UI.Class
 
 -- | Terrible helper operators
