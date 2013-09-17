@@ -141,6 +141,43 @@ mkWidget widgetName opts = do
     return [ showInst , defInst, widgetInst ]
 
 
+mkEffect :: Name -> [(String, Q Type, Q Exp)] -> Q [Dec]
+mkEffect effectName optsPre = do
+    -- adding easing to the list of options
+    let opts = ("easing", [t|T.Text|], [|"linear"|]): optsPre
+    -- names
+    let effectNameBase = nameBase effectName
+    let effectOptsName = mkName $ effectNameBase ++ "Opts"
+    -- declaration
+    let wDecl = mkSingletonDec effectName
+    -- show & default instances
+    let showInst = mkSimplShowInst effectName (map toLower effectNameBase)
+    opts' <- extractOpts effectName opts
+    let defOpts = RecConE effectOptsName
+                    (map (\(nm,_,e) -> (nm, e)) opts')
+    let effectOptsTy = AppT (ConT ''EffectOpts) (ConT effectName)
+    let defInst = mkDefaultInst effectOptsTy defOpts
+    -- effect instances
+    let optsDecl = map (\(nm, ty, _) -> (nm, IsStrict, ty)) opts'
+    let wOpts = DataInstD [] ''EffectOpts [ ConT effectName ]
+                      [ RecC effectOptsName optsDecl ]
+                      []
+
+    optsVar <- newName "opts" 
+    objList <- defOptsList optsVar effectName opts
+    let optsObjInst = FunD 'effectOptsObj [ Clause [ VarP optsVar ] 
+                          (NormalB
+                            (AppE (VarE 'obj)
+                                  (ListE objList)))
+                          [] ]
+
+    let effectInst = InstanceD [] (AppT (ConT ''Effect) 
+                                   (ConT effectName))
+                         [ wOpts, optsObjInst ]
+
+    return [ showInst , defInst, effectInst ]
+
+
 capitalize :: String -> String
 capitalize []     = []
 capitalize (x:xs) = toUpper x:xs

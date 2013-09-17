@@ -24,12 +24,20 @@ import           JavaScript.JQuery.UI.Internal
 import           JavaScript.JQuery.UI.TH
 import           JavaScript.JQuery.UI.Class
 
-with :: Widget a => WidgetOpts a
+-- * 'with' helper
+
+-- | Example usage:
+--
+-- > initWidget .. Button with { buttonLabel = ... }
+--
+with :: Default a => a
 with = def
 
-initWidget :: (Widget a, Show a) => JQuery -> a -> WidgetOpts a -> IO ()
+
+-- * Widget functions
+
+initWidget :: (Widget a) => JQuery -> a -> WidgetOpts a -> IO ()
 initWidget jq widget wopts = do
-    putStrLn $ "InitWidget " ++ show widget
     opts <- widgetOptsObj wopts
     jq_setOptsWidget (toJSString (show widget)) opts jq
 
@@ -39,6 +47,32 @@ widgetMethod jq widget method = jq_widgetMethod widget' method' jq
     widget' = toJSString (show widget)
     method' = toJSString method
 
+-- * Effect functions
+
+
+applyEffect :: (Effect a) => JQuery -> a -> EffectOpts a -> IO ()
+applyEffect jq e eopts = do
+    opts <- effectOptsObj eopts
+    jq_effect (toJSString (show e)) opts jq
+    
+hideEffect :: (Effect a) => JQuery -> a -> EffectOpts a -> IO ()
+hideEffect jq e eopts = do
+    opts <- effectOptsObj eopts
+    jq_hide (toJSString (show e)) opts jq
+
+showEffect :: (Effect a) => JQuery -> a -> EffectOpts a -> IO ()
+showEffect jq e eopts = do
+    opts <- effectOptsObj eopts
+    jq_show (toJSString (show e)) opts jq
+
+toggleEffect :: (Effect a) => JQuery -> a -> EffectOpts a -> IO ()
+toggleEffect jq e eopts = do
+    opts <- effectOptsObj eopts
+    jq_toggle (toJSString (show e)) opts jq
+
+-- * Widgets
+---------------------------
+
 -- | If (Maybe a) is 'a nullable', than (Falsable a) is 'a falsable'
 --
 -- F = 'false', Val a = a
@@ -47,10 +81,6 @@ data Falsable a = F | Val a
 instance (ToJSRef a) => ToJSRef (Falsable a) where
     toJSRef F       = return (castRef jsFalse)
     toJSRef (Val a) = castRef <$> toJSRef a
-
-
--- * Widgets
----------------------------
 
 data Button = Button
 
@@ -309,3 +339,22 @@ mkWidget ''Tabs
 --                      <==> [e|""       |]      
 --     ]
 
+-- * Effects
+
+data Blind = Blind
+
+mkEffect ''Blind
+    [ "direction"  <::> [t|Text|]
+                   <==> [e|"up"|]
+    ]
+
+data Bounce = Bounce
+
+mkEffect ''Bounce
+    [ "times"    <::> [t|Int|]
+                 <==> [e|3  |]
+    , "distance" <::> [t|Int|]
+                 <==> [e|20 |]
+    ]
+
+    

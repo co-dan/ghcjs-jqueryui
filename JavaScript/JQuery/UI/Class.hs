@@ -10,7 +10,7 @@
 
 module JavaScript.JQuery.UI.Class
     ( -- * Main classes
-      Widget(..)
+      Widget(..), Effect(..)
       -- * Helper functions
     , obj
     , (^=)
@@ -29,19 +29,12 @@ import GHCJS.Types
 
 class (Show a, Default (WidgetOpts a)) => Widget a where
     data WidgetOpts  a
-    -- data WidgetEvnts a
-    -- defOpts :: WidgetOpts a
-    -- default defOpts :: (Default (WidgetOpts a)) => WidgetOpts a
-    -- defOpts = def
     widgetOptsObj :: WidgetOpts a -> IO (JSObject a)
     default widgetOptsObj :: (ToJSON (WidgetOpts a)) => WidgetOpts a -> IO (JSObject a)
     widgetOptsObj opts = castRef <$> toJSRef_aeson (toJSON opts)
 
-class Show a => Effect a where
+class (Show a, Default (EffectOpts a)) => Effect a where
     data EffectOpts a
-    -- defOpts :: EffectOpts a
-    -- default defOpts :: (Default (EffectOpts a)) => EffectOpts a
-    -- defOpts = def
     effectOptsObj :: EffectOpts a -> IO (JSObject a)
     default effectOptsObj :: (ToJSON (EffectOpts a))  => EffectOpts a -> IO (JSObject a)
     effectOptsObj opts = castRef <$> toJSRef_aeson (toJSON opts)

@@ -3,7 +3,6 @@ module Main where
 
 import JavaScript.JQuery
 import JavaScript.JQuery.UI
-import JavaScript.JQuery.UI.Class
 import Data.Default
 
 main = do
@@ -26,7 +25,7 @@ main = do
     initWidget pbarDiv Progressbar with { progressbarValue = Val 10 }
 
     menuDiv <- select "#menu"
-    initWidget menuDiv Menu defOpts
+    initWidget menuDiv Menu def
 
     dialogDiv <- select "#dialog"
     opener    <- select "#opener"
@@ -38,6 +37,6 @@ main = do
     -- initWidget tooltipP Tooltip with { tooltipContent = "HI" }
 
     spinnerInp <- select "#spinner"
-    initWidget spinnerInp Spinner defOpts
+    initWidget spinnerInp Spinner def
     return ()
     

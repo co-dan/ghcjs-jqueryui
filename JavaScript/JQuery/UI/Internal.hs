@@ -39,6 +39,7 @@ foreign import javascript unsafe
 foreign import javascript unsafe
     "$3.toggleClass($1, $2)"
     jq_toggleClass :: JSString -> (JSObject a) -> JQuery -> IO ()    
+
 -- | UI core
 
 --- XXX: keycodes: http://api.jqueryui.com/jQuery.ui.keyCode/
