@@ -1,0 +1,26 @@
+jq_effect :: JSString -> (JSObject a) -> JQuery -> IO ()
+jq_effect = error "jq_effect: only available in JavaScript"
+jq_hide :: JSString -> (JSObject a) -> JQuery -> IO ()
+jq_hide = error "jq_hide: only available in JavaScript"
+jq_show :: JSString -> (JSObject a) -> JQuery -> IO ()
+jq_show = error "jq_show: only available in JavaScript"
+jq_switchClass :: JSString -> JSString -> (JSObject a) -> JQuery -> IO ()
+jq_switchClass = error "jq_switchClass: only available in JavaScript"
+jq_toggle :: JSString -> (JSObject a) -> JQuery -> IO ()
+jq_toggle = error "jq_toggle: only available in JavaScript"
+jq_toggleClass :: JSString -> (JSObject a) -> JQuery -> IO ()
+jq_toggleClass = error "jq_toggleClass: only available in JavaScript"
+jq_focus :: JSNumber -> JQuery -> IO JQuery
+jq_focus = error "jq_focus: only available in JavaScript"
+jq_removeUniqueId :: JQuery -> IO JQuery
+jq_removeUniqueId = error "jq_removeUniqueId: only available in JavaScript"
+jq_scrollParent :: JQuery -> IO JQuery
+jq_scrollParent = error "jq_scrollParent: only available in JavaScript"
+jq_uniqueId :: JQuery -> IO JQuery
+jq_uniqueId = error "jq_uniqueId: only available in JavaScript"
+jq_initWidget :: JQWidget -> JQuery -> IO ()
+jq_initWidget = error "jq_initWidget: only available in JavaScript"
+jq_setOptsWidget :: JQWidget -> JSObject a -> JQuery -> IO ()
+jq_setOptsWidget = error "jq_setOptsWidget: only available in JavaScript"
+jq_widgetMethod :: JQWidget -> JSString -> JQuery -> IO ()
+jq_widgetMethod = error "jq_widgetMethod: only available in JavaScript"

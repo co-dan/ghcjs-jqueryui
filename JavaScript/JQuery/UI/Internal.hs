@@ -9,6 +9,7 @@ import JavaScript.JQuery.Internal
 import GHCJS.Types
 import GHCJS.Foreign
 
+#ifdef __GHCJS__
 -- to export: removeClass, addClass
     
 -- | Effect core
@@ -64,9 +65,6 @@ foreign import javascript unsafe
                          
 -- | Widgets
 
-type JQWidget = JSString
-
-
 foreign import javascript unsafe
     "$2.$1()"
     jq_initWidget    :: JQWidget -> JQuery -> IO ()
@@ -78,3 +76,11 @@ foreign import javascript unsafe
 foreign import javascript unsafe
     "$3[$1]($2)"
     jq_widgetMethod  :: JQWidget -> JSString   -> JQuery -> IO ()
+#else
+
+#include "nonghcjs.txt"
+
+#endif
+
+type JQWidget = JSString
+
