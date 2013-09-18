@@ -7,12 +7,9 @@ import           Control.Monad
 import           Data.Aeson
 import           Data.Default
 import           Data.Text                  (Text)
-import qualified Data.Text                  as T
 import           JavaScript.JQuery
-import           JavaScript.JQuery.Internal
-import           JavaScript.JQuery.UI
+import           JavaScript.JQuery.UI       as UI
 import           JavaScript.JQuery.UI.Class
-
 
 data Box = Box { easing :: Text
                , box    :: JQuery }
@@ -40,19 +37,18 @@ main = do
     tracks <- select "#tracks"
     boxes <- sequence $ map (flip addBox tracks)
              [ "linear", "swing", "easeOutBounce" ]
-    width <- jq_getWidth tracks
     let handler _ = forM_ boxes $ \(Box easing box) -> forkIO $ do
-            jq_stop True box
+            stop True box
             setCss "left" "5px" box
-            delta <- (-) <$> jq_getWidth tracks <*> jq_getWidth box
+            delta <- (-) <$> getWidth tracks <*> getWidth box
             let d = delta - 50
-            animate box with { animateEasing   = easing
-                             , animateCSS      = object [ "left" .= d ]
-                             , animateDuration = 700 }
+            UI.animate box with { animateEasing   = easing
+                                , animateCSS      = object [ "left" .= d ]
+                                , animateDuration = 700 }
             threadDelay 1000000
-            animate box with { animateEasing   = easing
-                             , animateCSS      = object ["left" .= ("5px" :: String)]
-                             , animateDuration = 700 }
+            UI.animate box with { animateEasing   = easing
+                                , animateCSS      = object ["left" .= ("5px" :: String)]
+                                , animateDuration = 700 }
             return ()
 
     select "#start-race"
