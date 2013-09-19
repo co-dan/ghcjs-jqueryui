@@ -74,6 +74,14 @@ foreign import javascript unsafe
     jq_setOptsWidget :: JQWidget -> JSObject a -> JQuery -> IO ()
 
 foreign import javascript unsafe
+    "$2[$1](\"option\")"
+    jq_getOptsWidget :: JQWidget               -> JQuery -> IO (JSObject a)
+
+foreign import javascript unsafe
+    "$3[$1](\"option\", $2)"
+    jq_getOptWidget  :: JQWidget -> JSString   -> JQuery -> IO (JSRef a)
+
+foreign import javascript unsafe
     "$3[$1]($2)"
     jq_widgetMethod  :: JQWidget -> JSString   -> JQuery -> IO ()
 #else

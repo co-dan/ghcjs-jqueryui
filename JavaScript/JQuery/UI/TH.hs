@@ -6,6 +6,7 @@ import Control.Applicative        hiding (many, optional)
 import Control.Monad
 import Data.Char
 import qualified Data.Text as T
+import Data.Maybe
 import Data.Monoid                (mconcat)
 import Data.Default
 
@@ -15,6 +16,8 @@ import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Instances
 
 import GHCJS.Foreign
+import GHCJS.Types
+import GHCJS.Marshal
 import JavaScript.JQuery.UI.Class
 
 -- | Terrible helper operators
@@ -84,6 +87,30 @@ mkDefaultInst ty defF =
             (NormalB defF)
             [] ]]
 
+mkFromJSRefInst :: Type -> Exp -> [(String, a, b)] -> Q Dec
+mkFromJSRefInst ty constr opts = do
+    obj <- newName "obj"
+    let constr' = return constr
+    let getP p = (appE (varE 'getProp)
+                       [|p :: String|])
+    let optsProps = map (\(p,_,_) ->
+                          parensE
+                            (appE (appE 
+                                    (parensE (varE '(=<<)))
+                                    [|fmap fromJust . fromJSRef|])
+                                  (appE (getP p) (varE obj))))
+                        opts
+    let optsVal = foldr (\v acc -> uInfixE acc (varE '(<*>)) v)
+                        (appE (varE 'pure) constr')
+                        optsProps
+    let noCtx = return []              
+    instanceD noCtx (appT (conT ''FromJSRef) (return ty))
+        [ funD 'fromJSRef
+          [ clause [varP obj]
+            (normalB (appE (appE (varE 'fmap) (conE 'Just))
+                           optsVal))
+            [] ] ]
+          
 -- | Convert String to a Name, extract type and expression
 extractOpts :: Name -> [(String, Q Type, Q Exp)] -> Q [(Name, Type, Exp)]
 extractOpts nm = mapM $ \(s,ty,e) -> do
@@ -134,7 +161,8 @@ mkWidget widgetName opts = do
                                    (ConT widgetName))
                          [ wOpts, optsObjInst ]
 
-    return [ showInst , defInst, widgetInst ]
+    jsrefInst <- mkFromJSRefInst widgetOptsTy (ConE widgetOptsName) opts
+    return [ showInst , defInst, widgetInst, jsrefInst ]
 
 
 mkEffect :: Name -> [(String, Q Type, Q Exp)] -> Q [Dec]

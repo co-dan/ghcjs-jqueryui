@@ -47,6 +47,13 @@ widgetMethod jq widget method = jq_widgetMethod widget' method' jq
     widget' = toJSString (show widget)
     method' = toJSString method
 
+getWidgetOption :: (Widget a, FromJSRef (WidgetOpts a))
+                => JQuery -> a -> IO (Maybe (WidgetOpts a))
+getWidgetOption jq widget = fromJSRef . castRef
+                            =<< jq_getOptsWidget widget' jq
+  where widget' = toJSString (show widget)
+    
+
 -- * Effect functions
 
 applyEffect :: (Effect a) => JQuery -> a -> EffectOpts a -> IO ()
@@ -80,6 +87,15 @@ data Falsable a = F | Val a
 instance (ToJSRef a) => ToJSRef (Falsable a) where
     toJSRef F       = return (castRef jsFalse)
     toJSRef (Val a) = castRef <$> toJSRef a
+
+instance (FromJSRef a) => FromJSRef (Falsable a) where
+    fromJSRef r = do
+        mbool <- (fromJSRef $ castRef r) :: IO (Maybe Bool)
+        case mbool of
+            Just x  -> return $ if x then Nothing else Just F
+            Nothing -> do
+                ma <- fromJSRef $ castRef r
+                return (Val <$> ma)
 
 data Button = Button
 
