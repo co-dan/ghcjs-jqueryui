@@ -41,7 +41,7 @@ initWidget jq widget wopts = do
     opts <- widgetOptsObj wopts
     jq_setOptsWidget (toJSString (show widget)) opts jq
 
-widgetMethod :: (Widget a) => JQuery -> a -> Text -> IO ()
+widgetMethod :: (Widget a) => JQuery -> a -> Text -> IO (JSRef a)
 widgetMethod jq widget method = jq_widgetMethod widget' method' jq
   where
     widget' = toJSString (show widget)

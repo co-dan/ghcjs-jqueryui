@@ -87,7 +87,7 @@ foreign import javascript unsafe
                         
 foreign import javascript unsafe
     "$3[$1]($2)"
-    jq_widgetMethod  :: JQWidget -> JSString   -> JQuery -> IO ()
+    jq_widgetMethod  :: JQWidget -> JSString   -> JQuery -> IO (JSRef a)
 #else
 
 #include "nonghcjs.txt"

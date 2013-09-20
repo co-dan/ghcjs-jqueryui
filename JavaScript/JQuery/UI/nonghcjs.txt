@@ -28,5 +28,5 @@ jq_getOptWidget :: JQWidget -> JSString -> JQuery -> IO (JSRef a)
 jq_getOptWidget = error "jq_getOptWidget: only available in JavaScript"
 jq_setOptWidget :: JQWidget -> JSString -> JSRef a -> JQuery -> IO (JSRef a)
 jq_setOptWidget = error "jq_setOptWidget: only available in JavaScript"
-jq_widgetMethod :: JQWidget -> JSString -> JQuery -> IO ()
+jq_widgetMethod :: JQWidget -> JSString -> JQuery -> IO (JSRef a)
 jq_widgetMethod = error "jq_widgetMethod: only available in JavaScript"
