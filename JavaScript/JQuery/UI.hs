@@ -47,10 +47,10 @@ widgetMethod jq widget method = jq_widgetMethod widget' method' jq
     widget' = toJSString (show widget)
     method' = toJSString method
 
-getWidgetOption :: (Widget a, FromJSRef (WidgetOpts a))
+getWidgetOptions :: (Widget a, FromJSRef (WidgetOpts a))
                 => JQuery -> a -> IO (Maybe (WidgetOpts a))
-getWidgetOption jq widget = fromJSRef . castRef
-                            =<< jq_getOptsWidget widget' jq
+getWidgetOptions jq widget = fromJSRef . castRef
+                           =<< jq_getOptsWidget widget' jq
   where widget' = toJSString (show widget)
     
 
@@ -138,7 +138,9 @@ mkWidget ''Accordion
                     <==> [e|"auto"  |]
 
     , "icons"       <::> [t|A.Value  |]
-                    <==> [e|object []|]
+                    <==>
+      [e|object [ "header" .= ("ui-icon-triangle-1-e" :: Text)
+                , "activeHeader" .= ("ui-icon-triangle-1-s" :: Text)]|]
     ]
 
 
@@ -320,6 +322,85 @@ mkWidget ''Spinner
 
     , "step"         <::> [t|Int|]
                      <==> [e|1  |]
+    ]
+
+
+data Sortable = Sortable
+
+mkWidget ''Sortable
+    [ "appendTo" <::> [t|Selector|]
+                 <==> [e|"parent"|]
+
+    , "axis" <::> [t|Text|]
+             <==> [e|"y" |]
+
+    , "cancel" <::> [t|Selector                             |]
+               <==> [e|"input,textarea,button,select,option"|]     
+
+    , "connectWith" <::> [t|Falsable Selector|]
+                    <==> [e|F      |]
+      
+    , "containment" <::> [t|Text|] -- *
+                    <==> [e|""  |]
+
+    , "cursor" <::> [t|String  |]
+               <==> [e|"auto"|]
+
+    , "cursorAt" <::> [t|A.Value|]
+                 <==> [e|object []|]
+
+    , "delay" <::> [t|Int|]
+              <==> [e|0|]
+
+    , "disabled" <::> [t|Bool|]
+                 <==> [e|False|]
+
+    , "distance" <::> [t|Int|]
+                 <==> [e|1  |]
+
+    , "dropOnEmpty" <::> [t|Bool|]
+                    <==> [e|True |]
+
+    , "forceHelperSize" <::> [t|Bool|]
+                        <==> [e|False |]
+    , "forcePlaceholderSize" <::> [t|Bool|]
+                             <==> [e|False |]
+
+    , "grid" <::> [t|Falsable (JSArray Double)|]
+             <==> [e|F |]
+
+    , "handle" <::> [t|Falsable Selector|]
+               <==> [e|F  |]
+
+      --- XXX: helper
+    -- , "helper"     <::> [t|Either String|]
+    --                  <==> [e|"original"  |]
+
+    , "items" <::> [t|Selector|]
+              <==> [e|"> *"|]
+
+
+    , "opacity" <::> [t|Double|]
+                <==> [e|1  |]
+
+    , "placeholder" <::> [t|String|]
+                    <==> [e|"" |]
+
+    , "revert" <::> [t|Bool|]
+               <==> [e|False  |]
+
+    , "scroll" <::> [t|Bool|]
+               <==> [e|True  |]
+    , "scrollSensitivity" <::> [t|Int|]
+                          <==> [e|20  |]
+    , "scrollSpeed" <::> [t|Int|]
+                    <==> [e|20  |]
+
+    , "tolerance" <::> [t|String|]
+                  <==> [e|"intersect" |]
+
+    , "zindex" <::> [t|Int|]
+               <==> [e|1000  |]
     ]
 
 

@@ -38,5 +38,8 @@ main = do
 
     spinnerInp <- select "#spinner"
     initWidget spinnerInp Spinner def
+
+    sortableUl <- select "#sortable"
+    initWidget sortableUl Sortable def
     return ()
     
