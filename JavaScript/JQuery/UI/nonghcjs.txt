@@ -18,6 +18,10 @@ jq_scrollParent :: JQuery -> IO JQuery
 jq_scrollParent = error "jq_scrollParent: only available in JavaScript"
 jq_uniqueId :: JQuery -> IO JQuery
 jq_uniqueId = error "jq_uniqueId: only available in JavaScript"
+jq_disableSelection :: JQuery -> IO JQuery
+jq_disableSelection = error "jq_disableSelection: only available in JavaScript"
+jq_enableSelection :: JQuery -> IO JQuery
+jq_enableSelection = error "jq_enableSelection: only available in JavaScript"
 jq_initWidget :: JQWidget -> JQuery -> IO ()
 jq_initWidget = error "jq_initWidget: only available in JavaScript"
 jq_setOptsWidget :: JQWidget -> JSObject a -> JQuery -> IO ()

@@ -62,7 +62,14 @@ foreign import javascript unsafe
     "$r = $1.uniqueId()"
     jq_uniqueId :: JQuery -> IO JQuery
 
-                         
+foreign import javascript unsafe
+    "$1.disableSelection()"
+    jq_disableSelection :: JQuery -> IO JQuery
+
+foreign import javascript unsafe
+    "$1.enableSelection()"
+    jq_enableSelection  :: JQuery -> IO JQuery
+                           
 -- | Widgets
 
 foreign import javascript unsafe
