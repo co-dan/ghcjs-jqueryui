@@ -30,7 +30,7 @@ main = do
     dialogDiv <- select "#dialog"
     opener    <- select "#opener"
     initWidget dialogDiv Dialog with { dialogAutoOpen = False }
-    let handler _ = widgetMethod dialogDiv Dialog "open"
+    let handler _ = widgetMethod dialogDiv Dialog "open" >> return ()
     _ <- click handler def opener
 
     -- tooltipP <- select "#ttip"
